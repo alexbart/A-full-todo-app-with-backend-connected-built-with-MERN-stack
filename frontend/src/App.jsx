@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { TodoInput } from "./components/TodoInput";
 import { TodoList } from "./components/TodoList";
-import { getTodos, createTodo, deleteTodo } from "./api/todos";
+import { getTodos, createTodo, toggleTodo, deleteTodo } from "./api/todos";
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -33,6 +33,24 @@ function App() {
     }
   };
 
+  // TOGGLE todo
+  const handleToggle = async (id) => {
+    try {
+      const res = await toggleTodo(id);
+
+      setTodos(
+        todos.map((todo) =>
+          todo._id === id ? res.data : todo
+        )
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+
+
   // DELETE todo
   const handleDelete = async (id) => {
     try {
@@ -60,7 +78,7 @@ function App() {
 
         <TodoInput onAdd={addTodo} />
 
-        <TodoList todos={todos} onDelete={handleDelete} />
+        <TodoList todos={todos} onDelete={handleDelete} onToggle={handleToggle} />
       </div>
     </div>
   );
