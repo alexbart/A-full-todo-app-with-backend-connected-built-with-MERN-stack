@@ -1,42 +1,25 @@
-export function TodoItem({ todo, onDelete, onToggle, onEdit }) {
+export function TodoItem({ todo, onClick, onToggle, onDelete }) {
     return (
-        <div className="bg-gray-100 p-3 rounded-lg flex justify-between items-center">
+        <div
+            onClick={() => onClick(todo)}
+            className="p-4 border rounded-lg shadow-sm hover:shadow-md transition cursor-pointer bg-white"
+        >
+            <div className="flex justify-between items-center">
 
-            {/* Checkbox */}
-            <div className="flex items-center gap-3">
-                <input
-                    type="checkbox"
-                    checked={todo.completed}
-                    onChange={() => onToggle(todo._id)}
-                    className="w-4 h-4"
-                />
-
-                <span
-                    className={`cursor-pointer ${todo.completed ? "line-through text-gray-500" : ""
-                        }`}
-                >
+                <span className={todo.completed ? "line-through text-gray-400" : ""}>
                     {todo.title}
                 </span>
+
+                <div className="flex gap-2">
+                    <button onClick={(e) => { e.stopPropagation(); onToggle(todo._id); }}>
+                       COMPLETE ✔
+                    </button>
+
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(todo._id); }}>
+                      DELETE  🗑
+                    </button>
+                </div>
             </div>
-
-            {/* Edit */}
-            <div className="flex gap-2">
-                <button
-                    onClick={() => onEdit(todo)}
-                    className="text-blue-500"
-                >
-                    Edit
-                </button>
-
-            </div>
-
-            {/* Delete */}
-            <button
-                onClick={() => onDelete(todo._id)}
-                className="text-red-500"
-            >
-                Delete
-            </button>
         </div>
     );
 }

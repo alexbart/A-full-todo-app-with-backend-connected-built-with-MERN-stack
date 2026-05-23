@@ -3,7 +3,7 @@ import { getMe } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import { setAccessToken } from "../api/client";
 
-export  function Profile() {
+export function Profile() {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
 
@@ -60,6 +60,18 @@ export  function Profile() {
                         <p className="text-gray-500 text-sm">User ID</p>
                         <p className="text-xs break-all">{user._id}</p>
                     </div>
+                </div>
+                <div className="flex flex-col items-center mb-6">
+                    <img
+                        src={user.profileImage || "/default-avatar.png"}
+                        className="w-24 h-24 rounded-full object-cover border"
+                    />
+
+                    <input
+                        type="file"
+                        className="mt-3"
+                        accept="image/*"
+                    />
                 </div>
 
                 <button
