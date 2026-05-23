@@ -217,3 +217,29 @@ exports.getMe = async (req, res) => {
         });
     }
 };
+
+
+// UPLOAD LOGIC
+
+exports.uploadProfileImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+
+        const user = await User.findByIdAndUpdate(
+            req.user.userId,
+            { profileImage: imageUrl },
+            { new: true }
+        ).select("-password");
+
+        console.log("UPLOAD HIT");
+        console.log(req.file);
+
+        return res.json(user);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
