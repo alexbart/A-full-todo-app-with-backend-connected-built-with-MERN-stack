@@ -1,4 +1,4 @@
-export function TodoItem({ todo, onDelete, onToggle }) {
+export function TodoItem({ todo, onDelete, onToggle, onEdit }) {
     return (
         <div className="bg-gray-100 p-3 rounded-lg flex justify-between items-center">
 
@@ -17,6 +17,17 @@ export function TodoItem({ todo, onDelete, onToggle }) {
                 >
                     {todo.title}
                 </span>
+            </div>
+
+            {/* Edit */}
+            <div className="flex gap-2">
+                <button
+                    onClick={() => onEdit(todo)}
+                    className="text-blue-500"
+                >
+                    Edit
+                </button>
+
             </div>
 
             {/* Delete */}

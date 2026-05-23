@@ -15,13 +15,39 @@ router.post("/", async (req, res) => {
 });
 
 //UPDATE todo
+
+
 router.put("/:id", async (req, res) => {
     try {
-        const todo = await Todo.findByIdAndUpdate(req.params.id)
+        console.log("PUT BODY:", req.body);
+
+        const updatedTodo = await Todo.findByIdAndUpdate(
+            req.params.id,
+            {
+                $set: {
+                    title: req.body.title, // ONLY update title
+                }
+            },
+            { new: true }
+        );
+
+        res.json(updatedTodo);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+// TOGGLE 
+router.patch("/:id/toggle", async (req, res) => {
+    try {
+        const todo = await Todo.findById(req.params.id);
 
         todo.completed = !todo.completed;
-        await todo.save();
-        res.json(todo);
+
+        const updated = await todo.save();
+
+        res.json(updated);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

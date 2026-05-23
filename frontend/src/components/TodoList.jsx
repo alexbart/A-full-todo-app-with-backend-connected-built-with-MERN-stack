@@ -1,7 +1,7 @@
 import { TodoItem } from "./TodoItem"
 
 
-export function TodoList({todos, onDelete, onToggle}) {
+export function TodoList({todos, onDelete, onToggle, onEdit}) {
   return (
     <div className="space-y-4">
         {todos.map((todo) => (
@@ -10,6 +10,7 @@ export function TodoList({todos, onDelete, onToggle}) {
                 todo={todo} 
                 onDelete={onDelete} 
                 onToggle={onToggle} 
+                onEdit={onEdit}
             />
         ))}
     </div>
