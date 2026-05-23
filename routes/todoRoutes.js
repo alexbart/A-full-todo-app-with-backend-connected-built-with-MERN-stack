@@ -1,72 +1,29 @@
 const express = require("express");
 const router = express.Router();
-const Todo = require("../models/Todo");
+const protect = require("../middlewares/authMiddleware");
 
-// GET all todos
-router.get("/", async (req, res) => {
-    const todos = await Todo.find();
-    res.json(todos);
-});
-
-//CREATE todo 
-router.post("/", async (req, res) => {
-    const todo = await Todo.create(req.body);
-    res.json(todo);
-});
-
-//UPDATE todo
+router.use(protect);
 
 
-router.put("/:id", async (req, res) => {
-    try {
-        console.log("PUT BODY:", req.body);
-
-        const updatedTodo = await Todo.findByIdAndUpdate(
-            req.params.id,
-            {
-                $set: {
-                    title: req.body.title, // ONLY update title
-                }
-            },
-            { new: true }
-        );
-
-        res.json(updatedTodo);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+const {
+    getTodos,
+    createTodo,
+    updateTodo,
+    toggleTodo,
+    deleteTodo,
+} = require("../controllers/todoController");
 
 
-// TOGGLE 
-router.patch("/:id/toggle", async (req, res) => {
-    try {
-        const todo = await Todo.findById(req.params.id);
 
-        todo.completed = !todo.completed;
 
-        const updated = await todo.save();
+router.get("/", getTodos);
 
-        res.json(updated);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+router.post("/", createTodo);
 
-//DELETE todo
-router.delete("/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
+router.put("/:id", updateTodo);
 
-        if (!id) {
-            return res.status(400).json({ message: "ID is required" });
-        }
+router.patch("/:id/toggle", toggleTodo);
 
-        await Todo.findByIdAndDelete(id);
+router.delete("/:id", deleteTodo);
 
-        res.json({ message: "Deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
 module.exports = router;
