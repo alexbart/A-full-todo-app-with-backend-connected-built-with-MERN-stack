@@ -36,6 +36,10 @@ export default function Dashboard() {
         fetchUser();
     }, []);
 
+    useEffect(() => {
+        console.log("editingId changed:", editingId);
+    }, [editingId]);
+
     const fetchTodos = async () => {
         try {
             const res = await getTodos();
@@ -122,120 +126,142 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
+        <div className="min-h-screen bg-gray-100 ">
+            {/* NAVBAR */}
+            <header className="bg-white shadow-sm px-6 py-3 flex justify-between items-center">
 
-                <div className="flex justify-between items-center mb-6">
+                {/* LEFT: App name */}
+                <h1 className="text-xl font-bold text-blue-600">
+                    Todo SaaS
+                </h1>
 
-                    {/* LEFT: Greeting */}
-                    <div>
-                        <h1 className="text-2xl font-bold text-blue-600">
-                            Hi, {user?.name || "User"} 
-                        </h1>
-                        <p className="text-gray-500 text-sm">
-                            Welcome back to your tasks
+                {/* RIGHT: User */}
+                <div
+                    onClick={() => navigate("/profile")}
+                    className="flex items-center gap-3 cursor-pointer"
+                >
+                    <img
+                        src={user?.profileImage || "/default-avatar.png"}
+                        className="w-9 h-9 rounded-full border object-cover"
+                    />
+
+                    <div className="text-right">
+                        <p className="text-sm font-semibold">
+                            {user?.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                            View profile
                         </p>
                     </div>
-
-                    {/* RIGHT: Profile */}
-                    <div
-                        onClick={() => navigate("/profile")}
-                        className="flex items-center gap-3 cursor-pointer"
-                    >
-                        <img
-                            src={user?.profileImage || "/default-avatar.png"}
-                            className="w-10 h-10 rounded-full border"
-                        />
-
-                        <span className="font-medium">
-                            {user?.name}
-                        </span>
-                    </div>
                 </div>
-                <button
-                    onClick={() => navigate("/profile")}
-                    className="bg-gray-800 text-white px-3 py-1 rounded mb-4"
-                >
-                    My Profile
-                </button>
+            </header>
+            {/* MAIN CONTENT */}
+            <main className="p-6 max-w-6xl mx-auto">
 
-                <div className="flex justify-center gap-3 mb-6">
+                {/* GREETING BANNER */}
+                <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                        Hi, {user?.name}
+                    </h2>
+                    <p className="text-gray-500">
+                        Here’s what you need to get done today
+                    </p>
+                </div>
 
-                    <button
-                        onClick={() => setFilter("all")}
-                        className={`px-3 py-1 rounded border ${filter === "all"
+                {/* ACTION BAR */}
+                <div className="flex justify-between items-center mb-4">
+
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setFilter("all")}
+                            className={`px-3 py-1 rounded ${filter === "all"
                                 ? "bg-blue-600 text-white"
-                                : "text-blue-600 border-blue-600"
-                            }`}
-                    >
-                        All
-                    </button>
+                                : "bg-white border"
+                                }`}
+                        >
+                            All
+                        </button>
 
-                    <button
-                        onClick={() => setFilter("active")}
-                        className={`px-3 py-1 rounded border ${filter === "active"
-                                ? "bg-red-600 text-white"
-                                : "text-red-600 border-red-600"
-                            }`}
-                    >
-                        Active
-                    </button>
+                        <button
+                            onClick={() => setFilter("active")}
+                            className={`px-3 py-1 rounded ${filter === "active"
+                                ? "bg-red-500 text-white"
+                                : "bg-white border"
+                                }`}
+                        >
+                            Active
+                        </button>
 
-                    <button
-                        onClick={() => setFilter("completed")}
-                        className={`px-3 py-1 rounded border ${filter === "completed"
+                        <button
+                            onClick={() => setFilter("completed")}
+                            className={`px-3 py-1 rounded ${filter === "completed"
                                 ? "bg-green-600 text-white"
-                                : "text-green-600 border-green-600"
-                            }`}
+                                : "bg-white border"
+                                }`}
+                        >
+                            Completed
+                        </button>
+                    </div>
+
+                    <button
+                        onClick={() => navigate("/profile")}
+                        className="bg-gray-900 text-white px-4 py-2 rounded"
                     >
-                        Completed
+                        My Profile
                     </button>
-
                 </div>
+                {/* EDIT MODAL (SaaS STYLE) */}
+                {editingId && (
+                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+                        <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-lg">
 
-                {selectTodo && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="bg-white p-6 rounded-lg w-96">
-
-                            <h2 className="text-xl font-bold mb-2">
-                                {selectTodo?.title}
+                            <h2 className="text-lg font-bold mb-4">
+                                Edit Todo
                             </h2>
 
-                            <p className="text-gray-600">
-                                Status: {selectTodo?.completed ? "Completed" : "Active"}
-                            </p>
+                            <input
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                                className="w-full border p-2 rounded mb-4"
+                            />
 
-                            <button
-                                className="mt-4 bg-red-500 text-white px-3 py-1 rounded"
-                                onClick={() => setSelectTodo(null)}
-                            >
-                                Close
-                            </button>
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    onClick={() => {
+                                        setEditingId(null);
+                                        setEditText("");
+                                    }}
+                                    className="px-3 py-1 border rounded"
+                                >
+                                    Cancel
+                                </button>
 
+                                <button
+                                    onClick={saveEdit}
+                                    className="px-3 py-1 bg-blue-600 text-white rounded"
+                                >
+                                    Save
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
-                {editingId && (
-                    <div className="flex gap-2 mb-4">
-                        <input
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            className="border p-2 flex-1"
-                        />
-                        <button onClick={saveEdit}>Save</button>
-                    </div>
-                )}
 
-                <TodoInput onAdd={addTodo} />
+                {/* TODO SECTION */}
+                <div className="bg-white rounded-xl shadow p-4">
 
-                <TodoList
-                    todos={filteredTodos}
-                    onDelete={handleDelete}
-                    onToggle={handleToggle}
-                    onEdit={startEdit}
-                    onClick={openTodo}
-                />
-            </div>
+                    <TodoInput onAdd={addTodo} />
+
+                    <TodoList
+                        todos={filteredTodos}
+                        onDelete={handleDelete}
+                        onToggle={handleToggle}
+                        onEdit={startEdit}
+                        onClick={openTodo}
+                    />
+                </div>
+
+            </main>
         </div>
     );
 }
