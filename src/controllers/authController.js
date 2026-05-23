@@ -10,7 +10,7 @@ const jwt = require("jsonwebtoken");
 const generateAccessToken = (userId) => {
     return jwt.sign(
         { userId },
-        process.env.JWT_SECRET,
+        process.env.JWT_ACCESS_SECRET,
         { expiresIn: "15m" }
     );
 };
@@ -201,6 +201,12 @@ exports.getMe = async (req, res) => {
         const user = await User.findById(
             req.user.userId
         ).select("-password");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
 
         return res.json(user);
 

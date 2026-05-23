@@ -1,79 +1,55 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { isAuthenticated } from "../../../src/utils/auth";
-
 import { login as loginUser } from "../api/auth";
-
 import { setAccessToken } from "../api/client";
 
-
 export function Login() {
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
 
-    // Redirect if already logged in
     useEffect(() => {
+        const token = localStorage.getItem("accessToken");
 
-        if (isAuthenticated()) {
+        if (token) {
             navigate("/dashboard");
         }
-
     }, []);
 
     const handleLogin = async (e) => {
-
         e.preventDefault();
 
         try {
+            const res = await loginUser(email, password);
 
-            const data = await loginUser(
-                email,
-                password
-            );
-
-            // STORE ACCESS TOKEN IN MEMORY
-            setAccessToken(data.accessToken);
-
-            // // OPTIONAL USER STORAGE
-            // localStorage.setItem(
-            //     "user",
-            //     JSON.stringify(data.user)
-            // );
+            setAccessToken(res.accessToken);
 
             navigate("/dashboard");
 
         } catch (error) {
-
-            console.log(error);
+            console.log("Login error:", error.response?.data || error.message);
         }
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center">
+            <form onSubmit={handleLogin} className="p-6 bg-white shadow rounded w-80">
 
-            <form
-                onSubmit={handleLogin}
-                className="p-6 bg-white shadow rounded"
-            >
-
-                <h2 className="text-xl mb-4">
-                    Login
-                </h2>
+                <h2 className="text-xl mb-4 text-center">Login</h2>
 
                 <input
                     placeholder="Email"
                     className="border p-2 w-full mb-2"
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
 
                 <input
                     placeholder="Password"
                     type="password"
-                    className="border p-2 w-full mb-2"
+                    className="border p-2 w-full mb-4"
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
 
@@ -82,7 +58,6 @@ export function Login() {
                 </button>
 
             </form>
-
         </div>
     );
 }

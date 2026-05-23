@@ -10,14 +10,19 @@ export  function Profile() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await getMe();
-                setUser(res.data);
+                const data = await getMe();
+                setUser(data);
             } catch (err) {
-                console.log(err);
+                console.log("Profile error:", err);
 
+
+                if (err?.response?.status === 401) {
+                    alert("Session expired. Please login again.");
+                    navigate("/login");
+                }
                 // token expired or invalid
-                setAccessToken(null);
-                navigate("/login");
+                // setAccessToken(null);
+                // navigate("/login");
             }
         };
 

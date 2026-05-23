@@ -1,26 +1,24 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { getMe } from "../api/auth";
+import { api, setAccessToken } from "../api/client";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const loadUser = async () => {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            setLoading(false);
-            return;
-        }
-
+    const bootAuth = async () => {
         try {
-            const data = await getMe();
-            setUser(data);
+            const res = await api.post("/auth/refresh");
+
+            setAccessToken(res.data.accessToken);
+
+            const me = await getMe();
+            setUser(me.data);
+
         } catch (err) {
-            localStorage.removeItem("token");
             setUser(null);
         } finally {
             setLoading(false);
@@ -28,7 +26,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        loadUser();
+        bootAuth();
     }, []);
 
     return (

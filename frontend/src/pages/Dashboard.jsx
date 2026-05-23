@@ -11,8 +11,8 @@ import {
     updateTodo,
     deleteTodo
 } from "../api/todos";
-
-import { logout } from "../../../src/utils/auth"; // 👈correct place
+// 👈correct place
+import { clearAccessToken } from "../api/client";
 
 export default function Dashboard() {
 
@@ -75,7 +75,7 @@ export default function Dashboard() {
     };
 
     const handleLogout = () => {
-        logout();
+        clearAccessToken();
         navigate("/login");
     };
 

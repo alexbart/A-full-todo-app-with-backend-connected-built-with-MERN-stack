@@ -10,14 +10,20 @@ const protect = (req, res, next) => {
     try {
         const token = authHeader.split(" ")[1];
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
-        req.user = decoded;
+        req.user = decoded; // MUST contain userId
 
         next();
+
+        console.log("TOKEN:", token);
+        console.log("SECRET:", process.env.JWT_ACCESS_SECRET);
+        console.log("DECODED:", jwt.decode(token));
+        console.log("VERIFY RESULT:", jwt.verify(token, process.env.JWT_ACCESS_SECRET));
     } catch (err) {
         return res.status(401).json({ message: "Invalid token" });
     }
+
 };
 
 module.exports = protect;

@@ -1,22 +1,19 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { isAuthenticated } from "../../../src/utils/auth";
 import { register as registerUser } from "../api/auth";
 
-
-
 export function Register() {
-
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
 
-    // 🔐 redirect if already logged in
+    // redirect if already logged in
     useEffect(() => {
-        if (isAuthenticated()) {
+        const token = localStorage.getItem("accessToken");
+
+        if (token) {
             navigate("/dashboard");
         }
     }, []);
@@ -24,9 +21,14 @@ export function Register() {
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        const data = await registerUser(name, email, password);
+        try {
+            await registerUser(name, email, password);
 
-        navigate("/login");
+            navigate("/login");
+
+        } catch (error) {
+            console.log("Register error:", error.response?.data || error.message);
+        }
     };
 
     return (

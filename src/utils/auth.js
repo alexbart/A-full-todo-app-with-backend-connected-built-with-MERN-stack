@@ -1,17 +1,16 @@
-// src/utils/auth.js
+// export const setToken = (token) => {
+//     localStorage.setItem("accessToken", token);
+// };
 
-export const setToken = (token) => {
-    localStorage.setItem("token", token);
-};
+// export const getToken = () => {
+//     return localStorage.getItem("accessToken");
+// };
 
-export const getToken = () => {
-    return localStorage.getItem("token");
-};
+// export const isAuthenticated = () => {
+//     return !!localStorage.getItem("accessToken");
+// };
 
-export const isAuthenticated = () => {
-    return !!localStorage.getItem("token");
-};
-
-export const logout = () => {
-    localStorage.removeItem("token");
-};
+// export const logout = () => {
+//     localStorage.removeItem("accessToken");
+//     localStorage.removeItem("user");
+// };

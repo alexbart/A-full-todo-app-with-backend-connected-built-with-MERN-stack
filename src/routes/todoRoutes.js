@@ -12,10 +12,10 @@ const {
 
 router.use(protect);
 
-router.get("/", getTodos);
-router.post("/", createTodo);
-router.put("/:id", updateTodo);
-router.patch("/:id/toggle", toggleTodo);
-router.delete("/:id", deleteTodo);
+router.get("/", protect, getTodos);
+router.post("/", protect, createTodo);
+router.put("/:id", protect, updateTodo);
+router.patch("/:id/toggle", protect, toggleTodo);
+router.delete("/:id", protect, deleteTodo);
 
 module.exports = router;

@@ -1,11 +1,13 @@
 import { Navigate } from "react-router-dom";
-import { isAuthenticated } from "../../../src/utils/auth";
+import {getAccessToken} from "../api/client";
 
 
-export  function ProtectedRoute({ children }) {
-    const token = localStorage.getItem("token");
 
-    if (!isAuthenticated) {
+
+export function ProtectedRoute({ children }) {
+    const token = getAccessToken();
+
+    if (!token) {
         return <Navigate to="/login" replace />;
     }
 
