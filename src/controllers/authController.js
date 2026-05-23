@@ -1,50 +1,75 @@
-const dotenv = require("dotenv");
-dotenv.config();
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 
+// =========================
+// TOKEN HELPERS
+// =========================
+
+const generateAccessToken = (userId) => {
+    return jwt.sign(
+        { userId },
+        process.env.JWT_SECRET,
+        { expiresIn: "15m" }
+    );
+};
+
+const generateRefreshToken = (userId) => {
+    return jwt.sign(
+        { userId },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: "7d" }
+    );
+};
+
+
+// =========================
 // REGISTER
+// =========================
+
 exports.registerUser = async (req, res) => {
     try {
-        console.log("STEP 1 OK");
 
         const { name, email, password } = req.body;
 
-        console.log("STEP 2 OK");
-
+        // CHECK EXISTING USER
         const existingUser = await User.findOne({ email });
-        console.log("STEP 3 OK");
 
         if (existingUser) {
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(400).json({
+                message: "User already exists"
+            });
         }
 
-        console.log("STEP 4 OK");
-
+        // HASH PASSWORD
         const salt = await bcrypt.genSalt(10);
-        console.log("SALT OK");
 
         const hashedPassword = await bcrypt.hash(password, salt);
-        console.log("HASH OK");
 
+        // CREATE USER
         const user = await User.create({
             name,
             email,
             password: hashedPassword,
         });
 
-        console.log("USER CREATED:", user);
+        // TOKENS
+        const accessToken = generateAccessToken(user._id);
 
-        const token = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: "7d" }
-        );
+        const refreshToken = generateRefreshToken(user._id);
 
+        // STORE REFRESH TOKEN COOKIE
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: false, // true in production
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        // RESPONSE
         return res.status(201).json({
-            token,
+            accessToken,
             user: {
                 id: user._id,
                 name: user.name,
@@ -53,21 +78,26 @@ exports.registerUser = async (req, res) => {
         });
 
     } catch (error) {
+
         console.log("REGISTER ERROR:", error);
+
         return res.status(500).json({
             message: error.message
         });
     }
 };
- 
-console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
-//LOGIN
+
+// =========================
+// LOGIN
+// =========================
+
 exports.loginUser = async (req, res) => {
     try {
+
         const { email, password } = req.body;
 
-        // 1. Find user
+        // FIND USER
         const user = await User.findOne({ email });
 
         if (!user) {
@@ -76,8 +106,11 @@ exports.loginUser = async (req, res) => {
             });
         }
 
-        // 2. Check password safely
-        const isMatch = await bcrypt.compare(password, user.password);
+        // CHECK PASSWORD
+        const isMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
 
         if (!isMatch) {
             return res.status(400).json({
@@ -85,16 +118,22 @@ exports.loginUser = async (req, res) => {
             });
         }
 
-        // 3. Create token
-        const token = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: "7d" }
-        );
+        // TOKENS
+        const accessToken = generateAccessToken(user._id);
 
-        // 4. Return response
+        const refreshToken = generateRefreshToken(user._id);
+
+        // COOKIE
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: false, // true in production
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        // RESPONSE
         return res.json({
-            token,
+            accessToken,
             user: {
                 id: user._id,
                 name: user.name,
@@ -103,7 +142,9 @@ exports.loginUser = async (req, res) => {
         });
 
     } catch (error) {
+
         console.log("LOGIN ERROR:", error);
+
         return res.status(500).json({
             message: error.message
         });
@@ -111,9 +152,62 @@ exports.loginUser = async (req, res) => {
 };
 
 
-//Persistence
+// =========================
+// REFRESH ACCESS TOKEN
+// =========================
+
+exports.refreshToken = (req, res) => {
+
+    const token = req.cookies.refreshToken;
+
+    if (!token) {
+        return res.status(401).json({
+            message: "No refresh token"
+        });
+    }
+
+    try {
+
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_REFRESH_SECRET
+        );
+
+        const accessToken = generateAccessToken(
+            decoded.userId
+        );
+
+        return res.json({
+            accessToken
+        });
+
+    } catch (err) {
+
+        return res.status(403).json({
+            message: "Invalid refresh token"
+        });
+    }
+};
+
+
+// =========================
+// CURRENT USER
+// =========================
 
 exports.getMe = async (req, res) => {
-    const user = await User.findById(req.user.userId).select("-password");
-    res.json(user);
-}
+
+    try {
+
+        const user = await User.findById(
+            req.user.userId
+        ).select("-password");
+
+        return res.json(user);
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+};

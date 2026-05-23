@@ -48,7 +48,9 @@ export default function Dashboard() {
 
     const handleToggle = async (id) => {
         const res = await toggleTodo(id);
-        setTodos(todos.map(t => t._id === id ? res.data : t));
+        setTodos(prev =>
+            prev.map(t => t._id === id ? res.data : t)
+        );
     };
 
     const handleDelete = async (id) => {
@@ -101,6 +103,12 @@ export default function Dashboard() {
                         Logout
                     </button>
                 </div>
+                <button
+                    onClick={() => navigate("/profile")}
+                    className="bg-gray-800 text-white px-3 py-1 rounded mb-4"
+                >
+                    My Profile
+                </button>
 
                 <div className="flex justify-center gap-2 mb-4">
                     <button onClick={() => setFilter("all")}>All</button>

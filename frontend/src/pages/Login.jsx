@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { isAuthenticated, setToken } from "../../../src/utils/auth";
-import axios from "axios";
+
+import { isAuthenticated } from "../../../src/utils/auth";
+
 import { login as loginUser } from "../api/auth";
+
+import { setAccessToken } from "../api/client";
 
 
 export function Login() {
@@ -12,36 +15,54 @@ export function Login() {
 
     const navigate = useNavigate();
 
-    // redirect if already logged in
+    // Redirect if already logged in
     useEffect(() => {
+
         if (isAuthenticated()) {
             navigate("/dashboard");
         }
+
     }, []);
 
     const handleLogin = async (e) => {
+
         e.preventDefault();
 
         try {
-            const data = await loginUser(email, password);
 
-            setToken(data.token);
+            const data = await loginUser(
+                email,
+                password
+            );
 
-            localStorage.setItem("user", JSON.stringify(data.user));
+            // STORE ACCESS TOKEN IN MEMORY
+            setAccessToken(data.accessToken);
 
+            // // OPTIONAL USER STORAGE
+            // localStorage.setItem(
+            //     "user",
+            //     JSON.stringify(data.user)
+            // );
 
             navigate("/dashboard");
 
         } catch (error) {
+
             console.log(error);
         }
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center">
-            <form onSubmit={handleLogin} className="p-6 bg-white shadow rounded">
 
-                <h2 className="text-xl mb-4">Login</h2>
+            <form
+                onSubmit={handleLogin}
+                className="p-6 bg-white shadow rounded"
+            >
+
+                <h2 className="text-xl mb-4">
+                    Login
+                </h2>
 
                 <input
                     placeholder="Email"
@@ -61,6 +82,7 @@ export function Login() {
                 </button>
 
             </form>
+
         </div>
     );
 }
