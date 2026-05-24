@@ -238,7 +238,12 @@ exports.uploadProfileImage = async (req, res) => {
         console.log("UPLOAD HIT");
         console.log(req.file);
 
-        return res.json(user);
+        return res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            profileImage: user.profileImage
+        });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
