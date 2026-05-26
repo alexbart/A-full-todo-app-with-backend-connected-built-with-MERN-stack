@@ -31,6 +31,9 @@ const generateRefreshToken = (userId) => {
 exports.registerUser = async (req, res) => {
     try {
 
+        console.log("REGISTER REQUEST BODY:", req.body);
+
+
         const { name, email, password } = req.body;
 
         // CHECK EXISTING USER
