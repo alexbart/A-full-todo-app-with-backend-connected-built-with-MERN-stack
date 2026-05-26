@@ -1,11 +1,12 @@
 # dependencies
 node_modules/
 
-# environment variables
+# environment variables - NEVER commit secrets!
 .env
 .env.local
 .env.development
 .env.production
+.env.*
 
 # logs
 npm-debug.log*
