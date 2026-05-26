@@ -235,8 +235,6 @@ exports.uploadProfileImage = async (req, res) => {
             { new: true }
         ).select("-password");
 
-        console.log("UPLOAD HIT");
-        console.log(req.file);
 
         return res.json({
             _id: user._id,

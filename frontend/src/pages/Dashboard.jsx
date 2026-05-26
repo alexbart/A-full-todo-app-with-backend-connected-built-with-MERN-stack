@@ -1,8 +1,8 @@
 import { AppLayout } from "../layouts/AppLayout";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TodoInput } from "../components/TodoInput";
-import { TodoList } from "../components/TodoList";
+import { TodoInput } from "../components/todos/TodoInput";
+import { TodoList } from "../components/todos/TodoList";
 import { getMe } from "../api/auth";
 import { Bell } from "lucide-react";
 
@@ -141,73 +141,32 @@ export function Dashboard() {
         );
     }
 
-    return (
-    <AppLayout user={user}>
+return (
+    <AppLayout
+        user={user}
+        search={search}
+        setSearch={setSearch}
+    >
 
         {/* PAGE HEADER */}
-        <div className="mb-8 flex justify-between items-center">
+        <div className="mb-8">
 
-            <div>
-                <h1 className="text-3xl font-bold text-gray-800">
-                    Welcome back, {user?.name} 👋
-                </h1>
+            <h1 className="text-3xl font-bold text-gray-800">
+                Welcome back, {user?.name} 👋
+            </h1>
 
-                <p className="text-gray-500 mt-1">
-                    Here's your productivity overview today.
-                </p>
-            </div>
-
-            {/* SEARCH */}
-            <div className="flex items-center gap-3">
-
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search tasks..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="
-                            w-72 pl-4 pr-4 py-3
-                            rounded-xl border
-                            bg-white
-                            focus:outline-none
-                            focus:ring-2
-                            focus:ring-blue-500
-                        "
-                    />
-                </div>
-
-                {/* NOTIFICATION */}
-                <button
-                    className="
-                        relative p-3 rounded-xl
-                        bg-white border
-                        hover:bg-gray-50
-                        transition
-                    "
-                >
-                    <Bell size={20} />
-
-                    <span
-                        className="
-                            absolute -top-1 -right-1
-                            w-5 h-5 rounded-full
-                            bg-red-500 text-white
-                            text-xs flex items-center justify-center
-                        "
-                    >
-                        3
-                    </span>
-                </button>
-
-            </div>
+            <p className="text-gray-500 mt-1">
+                Here’s your productivity overview today.
+            </p>
 
         </div>
 
         {/* ANALYTICS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
+            {/* TOTAL */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
+
                 <p className="text-sm text-gray-500 mb-2">
                     Total Tasks
                 </p>
@@ -215,9 +174,12 @@ export function Dashboard() {
                 <h2 className="text-4xl font-bold text-blue-600">
                     {todos.length}
                 </h2>
+
             </div>
 
+            {/* COMPLETED */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
+
                 <p className="text-sm text-gray-500 mb-2">
                     Completed
                 </p>
@@ -225,9 +187,12 @@ export function Dashboard() {
                 <h2 className="text-4xl font-bold text-green-600">
                     {todos.filter(t => t.completed).length}
                 </h2>
+
             </div>
 
+            {/* PRODUCTIVITY */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
+
                 <p className="text-sm text-gray-500 mb-2">
                     Productivity
                 </p>
@@ -240,6 +205,7 @@ export function Dashboard() {
                         )}%`
                     }
                 </h2>
+
             </div>
 
         </div>
