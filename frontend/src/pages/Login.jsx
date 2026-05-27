@@ -15,15 +15,15 @@ export function Login() {
         if (token) {
             navigate("/dashboard");
         }
-    }, []);
+    }, [navigate]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
 
         try {
-            const res = await loginUser(email, password);
+            const res = await loginUser({ email, password });
 
-            setAccessToken(res.accessToken);
+            setAccessToken(res.data.accessToken);
 
             navigate("/dashboard");
 

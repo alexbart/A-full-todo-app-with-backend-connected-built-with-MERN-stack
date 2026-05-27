@@ -27,7 +27,16 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        bootAuth();
+        let cancelled = false;
+
+        (async () => {
+            if (cancelled) return;
+            await bootAuth();
+        })();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     return (
