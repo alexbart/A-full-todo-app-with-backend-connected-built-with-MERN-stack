@@ -65,8 +65,8 @@ exports.registerUser = async (req, res) => {
         // STORE REFRESH TOKEN COOKIE
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false, // true in production
-            sameSite: "strict",
+            secure: true, // true in production
+            sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
