@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMe, uploadProfile } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 export function Profile() {
     const [user, setUser] = useState(null);
@@ -9,6 +10,7 @@ export function Profile() {
     const [uploading, setUploading] = useState(false);
     const [preview, setPreview] = useState(null);
 
+    const { setUser: setAuthUser } = useAuth();
 
     const navigate = useNavigate();
     const cacheBuster = useMemo(() => Date.now(), []);
@@ -18,6 +20,7 @@ export function Profile() {
             try {
                 const res = await getMe();
                 setUser(res.data);
+                setAuthUser(res.data);
             } catch {
                 navigate("/login");
             } finally {
@@ -36,6 +39,7 @@ export function Profile() {
         try {
             const res = await uploadProfile(file);
             setUser(res.data);
+            setAuthUser(res.data);
             setFile(null);
         } catch {
             // Upload error handled silently

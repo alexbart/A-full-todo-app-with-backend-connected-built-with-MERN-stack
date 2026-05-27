@@ -4,6 +4,14 @@ const jwt = require("jsonwebtoken");
 
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const isValidEmail = (email) => {
+    if (typeof email !== "string") return false;
+    const value = email.trim();
+    if (!value) return false;
+    // Pragmatic format check (not RFC-perfect).
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+};
+
 const isStrongPassword = (password) => {
     if (typeof password !== "string") return false;
     if (password.length < 8) return false;
@@ -47,6 +55,10 @@ exports.registerUser = async (req, res) => {
 
 
         const { name, email, password } = req.body;
+
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ message: "Please provide a valid email address." });
+        }
 
         if (!isStrongPassword(password)) {
             return res.status(400).json({
@@ -122,6 +134,9 @@ exports.loginUser = async (req, res) => {
     try {
 
         const { email, password } = req.body;
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
         const trimmedEmail = String(email || "").trim();
         const normalizedEmail = trimmedEmail.toLowerCase();
 

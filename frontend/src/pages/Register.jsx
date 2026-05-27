@@ -45,17 +45,21 @@ export function Register() {
                 />
 
                 <input
-                    placeholder="Email"
+                    type="email"
+                    placeholder="Email (e.g. alex@example.com)"
                     className="border p-2 w-full mb-2"
                     onChange={(e) => setEmail(e.target.value)}
                 />
 
                 <input
-                    placeholder="Password"
+                    placeholder="Password (min 8 chars, Aa1!)"
                     type="password"
-                    className="border p-2 w-full mb-2"
+                    className="border p-2 w-full"
                     onChange={(e) => setPassword(e.target.value)}
                 />
+                <p className="text-xs text-gray-500 mb-3">
+                    Must include uppercase, lowercase, a number, and a special character.
+                </p>
 
                 <button className="bg-green-600 text-white px-4 py-2 w-full">
                     Register
