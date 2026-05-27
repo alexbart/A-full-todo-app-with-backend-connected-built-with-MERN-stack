@@ -12,7 +12,8 @@ export function Navbar({ user, search, setSearch }) {
             return path;
         }
 
-        return `https://a-full-todo-app-with-backend-connected.onrender.com${path}`;
+        const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace("/api", "") || "";
+        return `${baseUrl}${path}`;
     };
 
     return (
