@@ -4,19 +4,20 @@ const {registerUser, loginUser, getMe, refreshToken, uploadProfileImage, logoutU
 const protect = require("../middlewares/authMiddleware");
 const User = require("../models/User");
 const upload = require("../middlewares/upload");
+const { authLimiter, loginLimiter } = require("../middlewares/rateLimiters");
 
 router.use(express.json());
 
 
 router.post("/register", registerUser);
 
-router.post("/login", loginUser);
+router.post("/login", loginLimiter, loginUser);
 
 router.get("/me", protect, getMe);
 
-router.post("/refresh", refreshToken) 
+router.post("/refresh", authLimiter, refreshToken) 
 
-router.post("/logout", logoutUser);
+router.post("/logout", authLimiter, logoutUser);
 
 router.post(
     "/upload-profile",
