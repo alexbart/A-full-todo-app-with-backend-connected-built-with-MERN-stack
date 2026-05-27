@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getMe } from "../api/auth";
 import { setAccessToken } from "../api/client";
-import { login, register, refreshToken } from "../api/auth";
+import { api } from "../api/client";
 
 const AuthContext = createContext();
 
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
             const me = await getMe();
             setUser(me.data);
 
-        } catch (err) {
+        } catch {
             setUser(null);
         } finally {
             setLoading(false);

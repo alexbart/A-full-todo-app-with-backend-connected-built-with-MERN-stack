@@ -7,7 +7,7 @@ export const bootAuth = async () => {
 
         setAccessToken(res.data.accessToken);
 
-    } catch (err) {
+    } catch {
 
         clearAccessToken();
     }
