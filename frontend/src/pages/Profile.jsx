@@ -7,6 +7,8 @@ export function Profile() {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
+    const [preview, setPreview] = useState(null);
+
 
     const navigate = useNavigate();
 
@@ -52,6 +54,7 @@ export function Profile() {
         );
     }
 
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
@@ -59,7 +62,12 @@ export function Profile() {
                 {/* Avatar */}
                 <div className="flex flex-col items-center mb-6">
                     <img
-                        src={user?.profileImage || "/default-avatar.png"}
+                        src={
+                            preview ||
+                            (user?.profileImage
+                                ? `${user.profileImage}?t=${Date.now()}`
+                                : "/default-avatar.png")
+                        }
                         className="w-24 h-24 rounded-full border object-cover"
                     />
 
@@ -72,7 +80,11 @@ export function Profile() {
                     <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setFile(e.target.files[0])}
+                        onChange={(e) => {
+                            const file = e.target.files[0];
+                            setFile(file);
+                            setPreview(URL.createObjectURL(file));
+                        }}
                     />
 
                     <button
