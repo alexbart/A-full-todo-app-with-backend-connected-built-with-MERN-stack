@@ -12,7 +12,7 @@ export function Navbar({ user, search, setSearch }) {
             return path;
         }
 
-        return `http://localhost:5000${path}`;
+        return `https://a-full-todo-app-with-backend-connected.onrender.com${path}`;
     };
 
     return (

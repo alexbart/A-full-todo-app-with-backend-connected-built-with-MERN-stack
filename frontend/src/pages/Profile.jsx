@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMe, uploadProfile } from "../api/auth";
 
@@ -11,24 +11,22 @@ export function Profile() {
 
 
     const navigate = useNavigate();
+    const cacheBuster = useMemo(() => Date.now(), []);
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const data = await getMe();
-                setUser(data);
-            } catch (err) {
-                console.log(err);
-                if (err?.response?.status === 401) {
-                    navigate("/login");
-                }
+                const res = await getMe();
+                setUser(res.data);
+            } catch {
+                navigate("/login");
             } finally {
                 setLoading(false);
             }
         };
 
         fetchUser();
-    }, []);
+    }, [navigate]);
 
     const handleUpload = async () => {
         if (!file) return;
@@ -36,11 +34,11 @@ export function Profile() {
         setUploading(true);
 
         try {
-            const updatedUser = await uploadProfile(file);
-            setUser(updatedUser); // instant UI update
+            const res = await uploadProfile(file);
+            setUser(res.data);
             setFile(null);
-        } catch (err) {
-            console.log("Upload error:", err.response?.data || err.message);
+        } catch {
+            // Upload error handled silently
         } finally {
             setUploading(false);
         }
@@ -65,7 +63,7 @@ export function Profile() {
                         src={
                             preview ||
                             (user?.profileImage
-                                ? `${user.profileImage}?t=${Date.now()}`
+                                ? `${user.profileImage}?t=${cacheBuster}`
                                 : "/default-avatar.png")
                         }
                         className="w-24 h-24 rounded-full border object-cover"
