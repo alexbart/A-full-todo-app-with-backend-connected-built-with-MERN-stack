@@ -9,7 +9,7 @@ export function Login() {
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
-    const { user, loading } = useAuth();
+    const { user, loading, setUser } = useAuth();
 
     useEffect(() => {
         if (!loading && user) {
@@ -36,8 +36,9 @@ export function Login() {
             const res = await loginUser({ email, password });
 
             setAccessToken(res.data.accessToken);
+            setUser(res.data.user);
 
-            navigate("/dashboard");
+            navigate("/dashboard", { replace: true });
 
         } catch (error) {
             console.log("Login error:", error.response?.data || error.message);

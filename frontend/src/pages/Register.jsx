@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { register as registerUser } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 
@@ -17,10 +17,6 @@ export function Register() {
                 Loading...
             </div>
         );
-    }
-
-    if (user) {
-        return <Navigate to="/dashboard" replace />;
     }
 
     const handleRegister = async (e) => {
