@@ -13,5 +13,7 @@ export const logout = () => api.post("/auth/logout");
 export const uploadProfile = (file) => {
     const formData = new FormData();
     formData.append("image", file);
-    return api.post("/auth/upload-profile", formData);
+    return api.post("/auth/upload-profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
 };

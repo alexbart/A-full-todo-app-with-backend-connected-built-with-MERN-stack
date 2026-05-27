@@ -14,6 +14,14 @@ export function Profile() {
 
     const navigate = useNavigate();
     const cacheBuster = useMemo(() => Date.now(), []);
+    const apiBase = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/api\/?$/, "");
+
+    const getImageUrl = (path) => {
+        if (!path) return "/default-avatar.png";
+        if (path.startsWith("http")) return path;
+        if (path.startsWith("/")) return `${apiBase}${path}`;
+        return `${apiBase}/${path}`;
+    };
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -67,7 +75,7 @@ export function Profile() {
                         src={
                             preview ||
                             (user?.profileImage
-                                ? `${user.profileImage}?t=${cacheBuster}`
+                                ? `${getImageUrl(user.profileImage)}?t=${cacheBuster}`
                                 : "/default-avatar.png")
                         }
                         className="w-24 h-24 rounded-full border object-cover"
