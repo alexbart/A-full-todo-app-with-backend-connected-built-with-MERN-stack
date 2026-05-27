@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { register as registerUser } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 export function Register() {
     const [name, setName] = useState("");
@@ -8,15 +9,19 @@ export function Register() {
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
+    const { user, loading } = useAuth();
 
-    // redirect if already logged in
-    useEffect(() => {
-        const token = localStorage.getItem("accessToken");
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                Loading...
+            </div>
+        );
+    }
 
-        if (token) {
-            navigate("/dashboard");
-        }
-    }, []);
+    if (user) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
     const handleRegister = async (e) => {
         e.preventDefault();

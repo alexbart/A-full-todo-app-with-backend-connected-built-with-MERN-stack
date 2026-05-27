@@ -1,21 +1,33 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { login as loginUser } from "../api/auth";
 import { setAccessToken } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 
 export function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
+    const { user, loading } = useAuth();
 
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
-
-        if (token) {
-            navigate("/dashboard");
+        if (!loading && user) {
+            navigate("/dashboard", { replace: true });
         }
-    }, [navigate]);
+    }, [loading, user, navigate]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                Loading...
+            </div>
+        );
+    }
+
+    if (user) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
     const handleLogin = async (e) => {
         e.preventDefault();
