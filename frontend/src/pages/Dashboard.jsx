@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TodoInput } from "../components/todos/TodoInput";
 import { TodoList } from "../components/todos/TodoList";
-import { getMe } from "../api/auth";
 import { Bell } from "lucide-react";
 
 import {
@@ -13,12 +12,12 @@ import {
     updateTodo,
     deleteTodo
 } from "../api/todos";
-// 👈correct place
-import { clearAccessToken } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 
 export function Dashboard() {
 
     const navigate = useNavigate();
+    const { user, loading: authLoading } = useAuth();
 
     const [todos, setTodos] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -26,8 +25,6 @@ export function Dashboard() {
     const [editingId, setEditingId] = useState(null);
     const [editText, setEditText] = useState("");
     const [selectTodo, setSelectTodo] = useState(null);
-    const [user, setUser] = useState(null);
-    const [userLoading, setUserLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [darkMode, setDarkMode] = useState(false);
 
@@ -37,7 +34,6 @@ export function Dashboard() {
 
     useEffect(() => {
         fetchTodos();
-        fetchUser();
     }, []);
 
     useEffect(() => {
@@ -90,11 +86,6 @@ export function Dashboard() {
         setEditText("");
     };
 
-    const handleLogout = () => {
-        clearAccessToken();
-        navigate("/login");
-    };
-
     const filteredTodos = todos.filter(todo => {
 
         const matchesSearch =
@@ -113,27 +104,13 @@ export function Dashboard() {
         setSelectTodo(todo);
     };
 
-    const fetchUser = async () => {
-        try {
-            const res = await getMe();
-
-            const userData = res?.data || res;
-            setUser(userData);
-        } catch (err) {
-            console.log("Profile error:", err);
-        }
-        finally {
-            setUserLoading(false);
-        }
-    };
 
 
 
 
 
 
-
-    if (loading || userLoading) {
+    if (loading || authLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 Loading...
