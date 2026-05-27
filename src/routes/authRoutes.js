@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {registerUser, loginUser, getMe, refreshToken, uploadProfileImage} = require("../controllers/authController");
+const {registerUser, loginUser, getMe, refreshToken, uploadProfileImage, logoutUser} = require("../controllers/authController");
 const protect = require("../middlewares/authMiddleware");
 const User = require("../models/User");
 const upload = require("../middlewares/upload");
@@ -15,6 +15,8 @@ router.post("/login", loginUser);
 router.get("/me", protect, getMe);
 
 router.post("/refresh", refreshToken) 
+
+router.post("/logout", logoutUser);
 
 router.post(
     "/upload-profile",

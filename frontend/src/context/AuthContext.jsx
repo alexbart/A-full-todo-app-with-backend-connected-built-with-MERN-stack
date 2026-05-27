@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getMe } from "../api/auth";
-import { setAccessToken } from "../api/client";
+import { getMe, logout as logoutApi } from "../api/auth";
+import { clearAccessToken, setAccessToken } from "../api/client";
 import { api } from "../api/client";
 
 const AuthContext = createContext();
@@ -21,8 +21,20 @@ export const AuthProvider = ({ children }) => {
 
         } catch {
             setUser(null);
+            clearAccessToken();
         } finally {
             setLoading(false);
+        }
+    };
+
+    const logout = async () => {
+        try {
+            await logoutApi();
+        } catch {
+            // Even if the network fails, clear local state so user is logged out in the UI.
+        } finally {
+            clearAccessToken();
+            setUser(null);
         }
     };
 
@@ -40,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading }}>
+        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
             {children}
         </AuthContext.Provider>
     );

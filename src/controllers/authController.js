@@ -276,3 +276,21 @@ exports.uploadProfileImage = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 };
+
+// =========================
+// LOGOUT (clear refresh cookie)
+// =========================
+
+exports.logoutUser = (req, res) => {
+    try {
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        });
+
+        return res.json({ message: "Logged out" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};

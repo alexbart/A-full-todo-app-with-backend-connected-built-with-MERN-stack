@@ -7,15 +7,16 @@ import {
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
-import { clearAccessToken } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
 
 export function Sidebar() {
 
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
-    const logout = () => {
-        clearAccessToken();
-        navigate("/login");
+    const handleLogout = async () => {
+        await logout();
+        navigate("/login", { replace: true });
     };
 
     const navClass = ({ isActive }) =>
@@ -88,7 +89,7 @@ export function Sidebar() {
             <div className="mt-auto">
 
                 <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="
                         w-full flex items-center gap-3
                         px-4 py-3 rounded-xl
