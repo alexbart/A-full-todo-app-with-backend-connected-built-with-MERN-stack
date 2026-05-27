@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 export function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
     const { user, loading, setUser } = useAuth();
@@ -31,6 +32,7 @@ export function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setError("");
 
         try {
             const res = await loginUser({ email, password });
@@ -41,7 +43,8 @@ export function Login() {
             navigate("/dashboard", { replace: true });
 
         } catch (error) {
-            console.log("Login error:", error.response?.data || error.message);
+            const message = error.response?.data?.message || error.message;
+            setError(message);
         }
     };
 
@@ -50,6 +53,11 @@ export function Login() {
             <form onSubmit={handleLogin} className="p-6 bg-white shadow rounded w-80">
 
                 <h2 className="text-xl mb-4 text-center">Login</h2>
+                {error && (
+                    <p className="text-sm text-red-600 mb-3">
+                        {error}
+                    </p>
+                )}
 
                 <input
                     placeholder="Email"

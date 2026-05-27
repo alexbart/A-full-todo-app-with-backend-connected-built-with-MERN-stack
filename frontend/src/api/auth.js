@@ -10,6 +10,11 @@ export const refreshToken = () => api.post("/auth/refresh");
 
 export const logout = () => api.post("/auth/logout");
 
+export const verifyEmail = (token) => api.post("/auth/verify-email", { token });
+
+export const resendVerification = (email) =>
+    api.post("/auth/resend-verification", { email });
+
 export const uploadProfile = (file) => {
     const formData = new FormData();
     formData.append("image", file);

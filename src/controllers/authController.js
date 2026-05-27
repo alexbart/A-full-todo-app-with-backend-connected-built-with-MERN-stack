@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { sendEmailVerification } = require("../utils/mailer");
 
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -22,6 +24,21 @@ const isStrongPassword = (password) => {
     return true;
 };
 
+const sha256 = (value) =>
+    crypto.createHash("sha256").update(String(value)).digest("hex");
+
+const buildFrontendUrl = (path) => {
+    const base = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/+$/, "");
+    const cleanPath = String(path || "").startsWith("/") ? path : `/${path}`;
+    return `${base}${cleanPath}`;
+};
+
+const createEmailVerificationToken = () => {
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenHash = sha256(token);
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    return { token, tokenHash, expires };
+};
 
 // =========================
 // TOKEN HELPERS
@@ -92,27 +109,17 @@ exports.registerUser = async (req, res) => {
             password: hashedPassword,
         });
 
-        // TOKENS
-        const accessToken = generateAccessToken(user._id);
+        const { token, tokenHash, expires } = createEmailVerificationToken();
+        user.emailVerificationTokenHash = tokenHash;
+        user.emailVerificationExpires = expires;
+        await user.save();
 
-        const refreshToken = generateRefreshToken(user._id);
-
-        // STORE REFRESH TOKEN COOKIE
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true, // true in production
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
+        const verifyUrl = buildFrontendUrl(`/verify-email?token=${token}`);
+        await sendEmailVerification({ to: user.email, verifyUrl });
 
         // RESPONSE
         return res.status(201).json({
-            accessToken,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-            },
+            message: "Registration successful. Please check your email to verify your account.",
         });
 
     } catch (error) {
@@ -148,6 +155,12 @@ exports.loginUser = async (req, res) => {
         if (!user) {
             return res.status(400).json({
                 message: "Invalid credentials"
+            });
+        }
+
+        if (!user.emailVerified) {
+            return res.status(403).json({
+                message: "Please verify your email before logging in.",
             });
         }
 
@@ -332,6 +345,72 @@ exports.logoutUser = (req, res) => {
         });
 
         return res.json({ message: "Logged out" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// =========================
+// VERIFY EMAIL
+// =========================
+
+exports.verifyEmail = async (req, res) => {
+    try {
+        const token = req.body?.token || req.query?.token;
+        if (!token) {
+            return res.status(400).json({ message: "Missing token" });
+        }
+
+        const tokenHash = sha256(token);
+        const user = await User.findOne({
+            emailVerificationTokenHash: tokenHash,
+            emailVerificationExpires: { $gt: new Date() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired token" });
+        }
+
+        user.emailVerified = true;
+        user.emailVerificationTokenHash = null;
+        user.emailVerificationExpires = null;
+        await user.save();
+
+        return res.json({ message: "Email verified successfully." });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// =========================
+// RESEND VERIFICATION
+// =========================
+
+exports.resendVerification = async (req, res) => {
+    try {
+        const email = req.body?.email;
+        if (!isValidEmail(email)) {
+            return res.json({ message: "If the account exists, a verification email has been sent." });
+        }
+
+        const trimmedEmail = String(email || "").trim();
+        const user = await User.findOne({
+            email: new RegExp(`^${escapeRegex(trimmedEmail)}$`, "i"),
+        });
+
+        if (!user || user.emailVerified) {
+            return res.json({ message: "If the account exists, a verification email has been sent." });
+        }
+
+        const { token, tokenHash, expires } = createEmailVerificationToken();
+        user.emailVerificationTokenHash = tokenHash;
+        user.emailVerificationExpires = expires;
+        await user.save();
+
+        const verifyUrl = buildFrontendUrl(`/verify-email?token=${token}`);
+        await sendEmailVerification({ to: user.email, verifyUrl });
+
+        return res.json({ message: "If the account exists, a verification email has been sent." });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
