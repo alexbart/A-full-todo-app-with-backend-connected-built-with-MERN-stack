@@ -129,8 +129,8 @@ exports.loginUser = async (req, res) => {
         // COOKIE
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: false, // true in production
-            sameSite: "strict",
+            secure: true, // true in production
+            sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
@@ -224,13 +224,40 @@ exports.getMe = async (req, res) => {
 
 // UPLOAD LOGIC
 
+// exports.uploadProfileImage = async (req, res) => {
+//     try {
+//         if (!req.file) {
+//             return res.status(400).json({ message: "No file uploaded" });
+//         }
+
+//         const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+
+//         const user = await User.findByIdAndUpdate(
+//             req.user.userId,
+//             { profileImage: imageUrl },
+//             { new: true }
+//         ).select("-password");
+
+
+//         return res.json({
+//             _id: user._id,
+//             name: user.name,
+//             email: user.email,
+//             profileImage: user.profileImage
+//         });
+//     } catch (err) {
+//         return res.status(500).json({ message: err.message });
+//     }
+// };
+
 exports.uploadProfileImage = async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
         }
 
-        const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+        // Cloudinary URL comes directly from multer-cloudinary
+        const imageUrl = req.file.path;
 
         const user = await User.findByIdAndUpdate(
             req.user.userId,
@@ -238,13 +265,13 @@ exports.uploadProfileImage = async (req, res) => {
             { new: true }
         ).select("-password");
 
-
         return res.json({
             _id: user._id,
             name: user.name,
             email: user.email,
             profileImage: user.profileImage
         });
+
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
