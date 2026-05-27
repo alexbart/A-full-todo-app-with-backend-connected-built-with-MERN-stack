@@ -22,7 +22,7 @@ export function Register() {
         e.preventDefault();
 
         try {
-            await registerUser(name, email, password);
+            await registerUser({ name, email, password });
 
             navigate("/login");
 
