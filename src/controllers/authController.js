@@ -2,6 +2,8 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const isStrongPassword = (password) => {
     if (typeof password !== "string") return false;
     if (password.length < 8) return false;
@@ -54,8 +56,11 @@ exports.registerUser = async (req, res) => {
         }
 
         // CHECK EXISTING USER
-        const normalizedEmail = String(email || "").trim().toLowerCase();
-        const existingUser = await User.findOne({ email: normalizedEmail });
+        const trimmedEmail = String(email || "").trim();
+        const normalizedEmail = trimmedEmail.toLowerCase();
+        const existingUser = await User.findOne({
+            email: new RegExp(`^${escapeRegex(trimmedEmail)}$`, "i"),
+        });
 
         if (existingUser) {
             return res.status(400).json({
@@ -117,10 +122,13 @@ exports.loginUser = async (req, res) => {
     try {
 
         const { email, password } = req.body;
-        const normalizedEmail = String(email || "").trim().toLowerCase();
+        const trimmedEmail = String(email || "").trim();
+        const normalizedEmail = trimmedEmail.toLowerCase();
 
         // FIND USER
-        const user = await User.findOne({ email: normalizedEmail });
+        const user = await User.findOne({
+            email: new RegExp(`^${escapeRegex(trimmedEmail)}$`, "i"),
+        });
 
         if (!user) {
             return res.status(400).json({

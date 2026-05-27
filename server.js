@@ -11,6 +11,8 @@ dotenv.config();
 connectDB();
 
 const app = express();
+// Needed on Render/Cloudflare so req.ip is correct for rate limiting.
+app.set("trust proxy", 1);
 
 // app.use(cors({
 //     origin:[
