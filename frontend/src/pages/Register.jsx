@@ -9,7 +9,7 @@ export function Register() {
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
-    const { user, loading } = useAuth();
+    const { loading } = useAuth();
 
     if (loading) {
         return (
@@ -24,9 +24,7 @@ export function Register() {
 
         try {
             await registerUser({ name, email, password });
-
-            navigate("/login");
-
+            navigate(`/verify-email?email=${encodeURIComponent(email)}`);
         } catch (error) {
             console.log("Register error:", error.response?.data || error.message);
         }

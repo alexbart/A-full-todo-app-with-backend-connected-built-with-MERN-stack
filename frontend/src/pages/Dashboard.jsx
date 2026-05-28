@@ -129,7 +129,7 @@ return (
         <div className="mb-8">
 
             <h1 className="text-3xl font-bold text-gray-800">
-                Welcome back, {user?.name} 👋
+                Welcome back, {user?.name} 
             </h1>
 
             <p className="text-gray-500 mt-1">

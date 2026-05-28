@@ -7,40 +7,34 @@ export function VerifyEmail() {
     const token = params.get("token");
     const emailFromLink = params.get("email") || "";
 
-    const [status, setStatus] = useState("verifying"); // verifying | success | error
-    const [message, setMessage] = useState("");
+    const [status, setStatus] = useState(token ? "verifying" : "pending"); // verifying | success | error | pending
+    const [message, setMessage] = useState(token ? "" : "A verification email has been sent to your inbox. Please check your email and click the verification link.");
     const [email, setEmail] = useState(emailFromLink);
     const [resending, setResending] = useState(false);
 
     useEffect(() => {
-        let cancelled = false;
+        if (token) {
+            let cancelled = false;
 
-        (async () => {
-            if (!token) {
-                if (!cancelled) {
-                    setStatus("error");
-                    setMessage("Missing verification token.");
+            (async () => {
+                try {
+                    const res = await verifyEmail(token);
+                    if (!cancelled) {
+                        setStatus("success");
+                        setMessage(res.data?.message || "Email verified successfully.");
+                    }
+                } catch (err) {
+                    if (!cancelled) {
+                        setStatus("error");
+                        setMessage(err.response?.data?.message || "Verification failed.");
+                    }
                 }
-                return;
-            }
+            })();
 
-            try {
-                const res = await verifyEmail(token);
-                if (!cancelled) {
-                    setStatus("success");
-                    setMessage(res.data?.message || "Email verified successfully.");
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    setStatus("error");
-                    setMessage(err.response?.data?.message || "Verification failed.");
-                }
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-        };
+            return () => {
+                cancelled = true;
+            };
+        }
     }, [token]);
 
     const handleResend = async (e) => {
@@ -66,9 +60,17 @@ export function VerifyEmail() {
                 )}
 
                 {status !== "verifying" && (
-                    <p className={status === "success" ? "text-green-700" : "text-red-700"}>
+                    <p className={status === "success" ? "text-green-700" : status === "pending" ? "text-blue-700" : "text-red-700"}>
                         {message}
                     </p>
+                )}
+
+                {status === "pending" && (
+                    <div className="mt-4">
+                        <Link className="text-blue-600 underline" to="/login">
+                            Go to login
+                        </Link>
+                    </div>
                 )}
 
                 {status === "success" && (
