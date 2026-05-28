@@ -188,7 +188,10 @@ return (
         </div>
 
         {/* FILTERS */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-3 mb-6 overflow-x-auto">
+
+
+
 
             <button
                 onClick={() => setFilter("all")}

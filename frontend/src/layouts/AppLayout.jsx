@@ -13,10 +13,13 @@ export function AppLayout({
         <div className="flex bg-gray-100 min-h-screen">
 
             {/* SIDEBAR */}
-            <Sidebar />
+            <div className="hidden lg:block">
+                <Sidebar />
+            </div>
 
             {/* MAIN SECTION */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0">
+
 
                 <Navbar
                     user={user}
@@ -24,9 +27,10 @@ export function AppLayout({
                     setSearch={setSearch}
                 />
 
-                <main className="flex-1 p-6">
+                <main className="flex-1 p-4 sm:p-6">
                     {children}
                 </main>
+
 
                 <Footer />
 

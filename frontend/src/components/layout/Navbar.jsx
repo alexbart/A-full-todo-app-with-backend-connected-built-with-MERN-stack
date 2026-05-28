@@ -20,9 +20,10 @@ export function Navbar({ user, search, setSearch }) {
         <header
             className="
                 h-20 bg-white border-b
-                px-6 flex items-center justify-between
+                px-4 sm:px-6 flex items-center justify-between
             "
         >
+
 
             {/* LEFT */}
             <div>
@@ -32,20 +33,21 @@ export function Navbar({ user, search, setSearch }) {
             </div>
 
             {/* CENTER */}
-            <div>
-                <input
+            <div className="flex-1 mx-4">
+                <input 
                     type="text"
                     placeholder="Search tasks..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="
-                        w-80 px-4 py-3 rounded-xl
+                        w-full sm:w-80 px-4 py-3 rounded-xl
                         border bg-gray-50
                         focus:outline-none
                         focus:ring-2 focus:ring-blue-500
                     "
                 />
             </div>
+
 
             {/* RIGHT */}
             <div className="flex items-center gap-4">
