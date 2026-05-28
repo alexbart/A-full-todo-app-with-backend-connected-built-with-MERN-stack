@@ -5,10 +5,11 @@ import { verifyEmail, resendVerification } from "../api/auth";
 export function VerifyEmail() {
     const [params] = useSearchParams();
     const token = params.get("token");
+    const emailFromLink = params.get("email") || "";
 
     const [status, setStatus] = useState("verifying"); // verifying | success | error
     const [message, setMessage] = useState("");
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState(emailFromLink);
     const [resending, setResending] = useState(false);
 
     useEffect(() => {

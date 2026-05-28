@@ -114,7 +114,9 @@ exports.registerUser = async (req, res) => {
         user.emailVerificationExpires = expires;
         await user.save();
 
-        const verifyUrl = buildFrontendUrl(`/verify-email?token=${token}`);
+        const verifyUrl = buildFrontendUrl(
+            `/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}`
+        );
         await sendEmailVerification({ to: user.email, verifyUrl });
 
         // RESPONSE
@@ -407,7 +409,9 @@ exports.resendVerification = async (req, res) => {
         user.emailVerificationExpires = expires;
         await user.save();
 
-        const verifyUrl = buildFrontendUrl(`/verify-email?token=${token}`);
+        const verifyUrl = buildFrontendUrl(
+            `/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}`
+        );
         await sendEmailVerification({ to: user.email, verifyUrl });
 
         return res.json({ message: "If the account exists, a verification email has been sent." });
