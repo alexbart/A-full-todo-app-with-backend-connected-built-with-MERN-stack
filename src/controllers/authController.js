@@ -117,6 +117,10 @@ exports.registerUser = async (req, res) => {
         const verifyUrl = buildFrontendUrl(
             `/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}`
         );
+        
+        console.log("VERIFY URL:", verifyUrl);
+
+
         await sendEmailVerification({ to: user.email, verifyUrl });
 
         // RESPONSE
