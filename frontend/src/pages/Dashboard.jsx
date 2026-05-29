@@ -13,11 +13,13 @@ import {
     deleteTodo
 } from "../api/todos";
 import { useAuth } from "../context/AuthContext";
+import { useNotifications } from "../context/NotificationContext";
 
 export function Dashboard() {
 
     const navigate = useNavigate();
     const { user, loading: authLoading } = useAuth();
+    const { addNotification } = useNotifications();
 
     const [todos, setTodos] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -52,22 +54,44 @@ export function Dashboard() {
     const addTodo = async (title) => {
         try {
             await createTodo({ title });
+            addNotification(`New task created: "${title}"`, "success");
             fetchTodos(); // 👈 ALWAYS consistent with DB
         } catch (error) {
             console.log(error);
+            addNotification("Failed to create task", "error");
         }
     };
 
     const handleToggle = async (id) => {
-        const res = await toggleTodo(id);
-        setTodos(prev =>
-            prev.map(t => t._id === id ? res.data : t)
-        );
+        try {
+            const res = await toggleTodo(id);
+            setTodos(prev =>
+                prev.map(t => t._id === id ? res.data : t)
+            );
+            if (res.data.completed) {
+                addNotification(`Task completed: "${res.data.title}"`, "success");
+            } else {
+                addNotification(`Task reopened: "${res.data.title}"`, "info");
+            }
+        } catch (error) {
+            console.log(error);
+            addNotification("Failed to toggle task", "error");
+        }
     };
 
     const handleDelete = async (id) => {
-        await deleteTodo(id);
-        setTodos(todos.filter(t => t._id !== id));
+        try {
+            // Find the todo to get its title for notification
+            const todoToDelete = todos.find(t => t._id === id);
+            await deleteTodo(id);
+            setTodos(todos.filter(t => t._id !== id));
+            if (todoToDelete) {
+                addNotification(`Task deleted: "${todoToDelete.title}"`, "warning");
+            }
+        } catch (error) {
+            console.log(error);
+            addNotification("Failed to delete task", "error");
+        }
     };
 
     const startEdit = (todo) => {
@@ -76,11 +100,16 @@ export function Dashboard() {
     };
 
     const saveEdit = async () => {
-        const res = await updateTodo(editingId, { title: editText });
-
-        setTodos(prev =>
-            prev.map(t => t._id === editingId ? res.data : t)
-        );
+        try {
+            const res = await updateTodo(editingId, { title: editText });
+            setTodos(prev =>
+                prev.map(t => t._id === editingId ? res.data : t)
+            );
+            addNotification(`Task updated: "${res.data.title}"`, "info");
+        } catch (error) {
+            console.log(error);
+            addNotification("Failed to update task", "error");
+        }
 
         setEditingId(null);
         setEditText("");
